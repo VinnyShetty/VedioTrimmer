@@ -32,11 +32,15 @@ import com.marolix.videotrimmer.utils.TrimVideoUtils;
 import com.marolix.videotrimmer.utils.UiThreadExecutor;
 import com.marolix.videotrimmer.view.ProgressBarView;
 import com.marolix.videotrimmer.view.RangeSeekBarView;
+import com.marolix.videotrimmer.view.Thumb;
 import com.marolix.videotrimmer.view.TimeLineView;
 
 import java.io.File;
 import java.lang.ref.WeakReference;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Formatter;
 import java.util.List;
 
@@ -55,16 +59,14 @@ public class DeepVideoTrimmer extends FrameLayout implements MediaPlayer.OnError
     private TextView mTextTimeFrame;
     private TextView mTextTime;
     private TimeLineView mTimeLineView;
-
     private Uri mSrc;
     private String mFinalPath;
-
     private int mMaxDuration;
     private List<OnProgressVideoListener> mListeners;
     private OnTrimVideoListener mOnTrimVideoListener;
 
     private int mDuration = 0;
-    private int maxFileSize= 25;
+    private int maxFileSize = 100;//25
     private int mTimeVideo = 0;
     private int mStartPosition = 0;
     private int mEndPosition = 0;
@@ -77,7 +79,8 @@ public class DeepVideoTrimmer extends FrameLayout implements MediaPlayer.OnError
     private GestureDetector mGestureDetector;
     private int initialLength;
     @NonNull
-    private final GestureDetector.SimpleOnGestureListener mGestureListener = new GestureDetector.SimpleOnGestureListener() {
+    private final GestureDetector.SimpleOnGestureListener mGestureListener =
+            new GestureDetector.SimpleOnGestureListener() {
         @Override
         public boolean onSingleTapConfirmed(MotionEvent e) {
             if (mVideoView.isPlaying()) {
@@ -123,12 +126,12 @@ public class DeepVideoTrimmer extends FrameLayout implements MediaPlayer.OnError
 
         mHolderTopView = findViewById(R.id.handlerTop);
         ProgressBarView progressVideoView = findViewById(R.id.timeVideoView);
-        mRangeSeekBarView =  findViewById(R.id.timeLineBar);
+        mRangeSeekBarView = findViewById(R.id.timeLineBar);
         mLinearVideo = findViewById(R.id.layout_surface_view);
         mVideoView = findViewById(R.id.video_loader);
         mPlayView = findViewById(R.id.icon_video_play);
         mTextSize = findViewById(R.id.textSize);
-        mTextTimeFrame =  findViewById(R.id.textTimeSelection);
+        mTextTimeFrame = findViewById(R.id.textTimeSelection);
         mTextTime = findViewById(R.id.textTime);
         mTimeLineView = findViewById(R.id.timeLineView);
         View viewButtonCancel = findViewById(R.id.btCancel);
@@ -155,15 +158,11 @@ public class DeepVideoTrimmer extends FrameLayout implements MediaPlayer.OnError
                                                           } else {
                                                               mPlayView.setVisibility(View.VISIBLE);
                                                               mVideoView.pause();
-
                                                               MediaMetadataRetriever mediaMetadataRetriever = new MediaMetadataRetriever();
                                                               mediaMetadataRetriever.setDataSource(getContext(), mSrc);
                                                               long METADATA_KEY_DURATION = Long.parseLong(mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
-
                                                               File file = new File(mSrc.getPath());
-
                                                               if (mTimeVideo < MIN_TIME_FRAME) {
-
                                                                   if ((METADATA_KEY_DURATION - mEndPosition) > (MIN_TIME_FRAME - mTimeVideo)) {
                                                                       mEndPosition += (MIN_TIME_FRAME - mTimeVideo);
                                                                   } else if (mStartPosition > (MIN_TIME_FRAME - mTimeVideo)) {
@@ -175,7 +174,6 @@ public class DeepVideoTrimmer extends FrameLayout implements MediaPlayer.OnError
                                                       } else {
                                                           Toast.makeText(getContext(), "Please trim your video less than 25MB of size", Toast.LENGTH_SHORT).show();
                                                       }
-
                                                   }
                                               }
             );
@@ -192,22 +190,21 @@ public class DeepVideoTrimmer extends FrameLayout implements MediaPlayer.OnError
         mRangeSeekBarView.addOnRangeSeekBarListener(progressVideoView);
 
         int marge = mRangeSeekBarView.getThumbs().get(0).getWidthBitmap();
-        int widthSeek = mHolderTopView.getThumb().getMinimumWidth() / 2;
+        int widthSeek = mHolderTopView.getThumb().getMinimumWidth() ;//  /2
 
-        LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) mHolderTopView.getLayoutParams();
+        RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams) mHolderTopView.getLayoutParams();
         lp.setMargins(marge - widthSeek, 0, marge - widthSeek, 0);
         mHolderTopView.setLayoutParams(lp);
 
-        lp = (LinearLayout.LayoutParams) mTimeLineView.getLayoutParams();
+        lp = (RelativeLayout.LayoutParams) mTimeLineView.getLayoutParams();
         lp.setMargins(marge, 0, marge, 0);
         mTimeLineView.setLayoutParams(lp);
 
-        lp = (LinearLayout.LayoutParams) progressVideoView.getLayoutParams();
+        lp = (RelativeLayout.LayoutParams) progressVideoView.getLayoutParams();
         lp.setMargins(marge, 0, marge, 0);
         progressVideoView.setLayoutParams(lp);
 
         mHolderTopView.setOnSeekBarChangeListener(this);
-
         mVideoView.setOnPreparedListener(this);
         mVideoView.setOnCompletionListener(this);
         mVideoView.setOnErrorListener(this);
@@ -238,7 +235,9 @@ public class DeepVideoTrimmer extends FrameLayout implements MediaPlayer.OnError
 
     private void setDefaultDestinationPath() {
         File folder = Environment.getExternalStorageDirectory();
-        mFinalPath = folder.getPath() + File.separator;
+        File dir = new File(Environment.getExternalStorageDirectory().getPath()+"/trim videos/");
+        dir.mkdirs();
+        mFinalPath = dir.getPath() + File.separator;
         Log.d(TAG, "Setting default path " + mFinalPath);
     }
 
@@ -357,6 +356,22 @@ public class DeepVideoTrimmer extends FrameLayout implements MediaPlayer.OnError
     private void setTimeFrames() {
         String seconds = getContext().getString(R.string.short_seconds);
         mTextTimeFrame.setText(String.format("%s %s - %s %s", stringForTime(mStartPosition), seconds, stringForTime(mEndPosition), seconds));
+
+        try {
+            SimpleDateFormat format = new SimpleDateFormat("mm:ss");
+            Date date1 = format.parse(stringForTime(mStartPosition));
+            Date date2 = format.parse(stringForTime(mEndPosition));
+            long difference = date2.getTime() - date1.getTime();
+            long diffSeconds = difference / 1000 % 60;
+            long diffMinutes = difference / (60 * 1000) % 60;
+            if (diffMinutes <= 0)
+            mTextTime.setText(String.format("%s %s", diffSeconds + "", seconds));
+            else if (diffMinutes >=1)
+                mTextTime.setText(diffMinutes+" min");
+
+        }catch(ParseException e) {
+            e.printStackTrace();
+        }
     }
 
 

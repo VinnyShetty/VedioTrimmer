@@ -5,10 +5,13 @@ import android.app.Activity;
 import android.content.Intent;
 
 import android.graphics.Bitmap;
+import android.media.MediaPlayer;
 import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.os.Parcelable;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
@@ -29,29 +32,34 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import static com.marolix.videotrimmer.Constants.EXTRA_VIDEO_PATH;
 import static com.marolix.videotrimmer.Constants.EXTRA_VIDEO_PATH;
 
 public class MainActivity extends BaseActivity implements View.OnClickListener {
-    Button btnSelectVideo;
+    Button btnSelectVideo,btnListVideo;
     static Uri selectedVideoUri;
     AppCompatImageView selectedVideoThumb;
     public static final int PERMISSION_STORAGE = 100;
     private final int REQUEST_VIDEO_TRIMMER_RESULT = 342;
-ImageView imageView;
+    ImageView imageView;
     private final int REQUEST_VIDEO_TRIMMER = 0x12;
     private File thumbFile;
-    private String selectedVideoName = null,selectedVideoFile = null;
+    private String selectedVideoName = null, selectedVideoFile = null;
     private RequestOptions simpleOptions;
+
+    static final String VIDEO_TOTAL_DURATION = "VIDEO_TOTAL_DURATION";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-       setContentView( R.layout.activity_main);
+        setContentView(R.layout.activity_main);
         setUpToolbar("Video Trimmer Example");
-       imageView=findViewById(R.id.play);
-        btnSelectVideo=findViewById(R.id. btnSelectVideo);
-        selectedVideoThumb=findViewById(R.id.selectedVideoThumb);
+        imageView = findViewById(R.id.play);
+        btnListVideo=findViewById(R.id.btnListVideo);
+        btnSelectVideo = findViewById(R.id.btnSelectVideo);
+        selectedVideoThumb = findViewById(R.id.selectedVideoThumb);
+        btnListVideo.setOnClickListener(this);
         btnSelectVideo.setOnClickListener(this);
         simpleOptions = new RequestOptions()
                 .centerCrop()
@@ -61,8 +69,8 @@ ImageView imageView;
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i=new Intent(MainActivity.this,Trimvideo.class);
-                i.putExtra("url",selectedVideoUri.getPath());
+                Intent i = new Intent(MainActivity.this, Trimvideo.class);
+                i.putExtra("url", selectedVideoUri.getPath());
                 startActivity(i);
             }
         });
@@ -74,7 +82,20 @@ ImageView imageView;
             case R.id.btnSelectVideo:
                 checkForPermission();
                 break;
+            case R.id.btnListVideo:
+            {
+
+                Intent i=new Intent(MainActivity.this,ListOfTrimVideos.class);
+
+                startActivity(i);
+            }
         }
+    }
+
+    private int  getMediaDuration(Uri uriOfFile)  {
+        MediaPlayer mp = MediaPlayer.create(this,uriOfFile);
+        int duration = mp.getDuration();
+        return  duration;
     }
 
     private void checkForPermission() {
@@ -130,6 +151,7 @@ ImageView imageView;
     private void startTrimActivity(@NonNull Uri uri) {
         Intent intent = new Intent(this, VideoTrimmerActivity.class);
         intent.putExtra(EXTRA_VIDEO_PATH, FileUtils.getPath(this, uri));
+        intent.putExtra(VIDEO_TOTAL_DURATION, getMediaDuration(uri));
         startActivityForResult(intent, REQUEST_VIDEO_TRIMMER_RESULT);
     }
 
@@ -171,14 +193,14 @@ ImageView imageView;
                     }
                     break;
                 case REQUEST_VIDEO_TRIMMER_RESULT:
-                    selectedVideoUri= data.getData();
+                    selectedVideoUri = data.getData();
 
                     if (selectedVideoUri != null) {
                         selectedVideoFile = data.getData().getPath();
                         selectedVideoName = data.getData().getLastPathSegment();
-                        Log.e("as", selectedVideoFile );
-                        Log.e("filename",selectedVideoName);
-                        Log.e("uri",selectedVideoUri.getPath());
+                        Log.e("as", selectedVideoFile);
+                        Log.e("filename", selectedVideoName);
+                        Log.e("uri", selectedVideoUri.getPath());
                         Bitmap thumb = ThumbnailUtils.createVideoThumbnail(selectedVideoUri.getPath(),
                                 MediaStore.Images.Thumbnails.FULL_SCREEN_KIND);
 

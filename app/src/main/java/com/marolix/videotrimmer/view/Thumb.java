@@ -87,12 +87,12 @@ public class Thumb {
     }
 
     @NonNull
-    public static List<com.marolix.videotrimmer.view.Thumb> initThumbs(Resources resources) {
+    public static List<Thumb> initThumbs(Resources resources) {
 
-        List<com.marolix.videotrimmer.view.Thumb> thumbs = new Vector<>();
+        List<Thumb> thumbs = new Vector<>();
 
         for (int i = 0; i < 2; i++) {
-            com.marolix.videotrimmer.view.Thumb th = new com.marolix.videotrimmer.view.Thumb();
+            Thumb th = new Thumb();
             th.setIndex(i);
             if (i == 0) {
                 int resImageLeft = com.marolix.videotrimmer.R.drawable.text_select_handle_left;
@@ -108,11 +108,11 @@ public class Thumb {
         return thumbs;
     }
 
-    public static int getWidthBitmap(@NonNull List<com.marolix.videotrimmer.view.Thumb> thumbs) {
+    public static int getWidthBitmap(@NonNull List<Thumb> thumbs) {
         return thumbs.get(0).getWidthBitmap();
     }
 
-    public static int getHeightBitmap(@NonNull List<com.marolix.videotrimmer.view.Thumb> thumbs) {
+    public static int getHeightBitmap(@NonNull List<Thumb> thumbs) {
         return thumbs.get(0).getHeightBitmap();
     }
 

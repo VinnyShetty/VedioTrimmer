@@ -22,17 +22,17 @@
 
         <android.support.v7.widget.AppCompatImageView
             android:id="@+id/icon_video_play"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
-            android:background="@drawable/ic_play_circle_filled_black_24dp" />
+            android:background="@drawable/ic_play_circle_outline_black_24dp" />
 
     </RelativeLayout>
 
 
     <LinearLayout
-        android:id="@+id/layout"
+        android:id="@+id/layout_parent"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
@@ -50,9 +50,9 @@
                 android:id="@+id/textSize"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="textSize"
                 android:layout_gravity="center"
                 android:layout_weight="1"
+                android:text="textSize"
                 android:textColor="#FFFFFF" />
 
             <TextView
@@ -66,46 +66,55 @@
 
             <TextView
                 android:id="@+id/textTime"
-                android:text="textTime"
-              android:paddingRight="15dp"
-                android:layout_gravity="end"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:paddingRight="15dp"
+                android:text="textTime"
                 android:textColor="@android:color/white" />
 
         </LinearLayout>
 
-        <SeekBar
-            android:id="@+id/handlerTop"
+        <RelativeLayout
+            android:id="@+id/layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:progressDrawable="@android:color/transparent"
-            android:thumb="@drawable/text_select_handle_middle" />
+            android:layout_alignParentBottom="true"
+            android:background="@color/background_video_color">
 
-        <com.marolix.videotrimmer.view.ProgressBarView
-            android:id="@+id/timeVideoView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/handlerTop" />
+            <SeekBar
+                android:id="@+id/handlerTop"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:progressDrawable="@android:color/transparent"
+                android:thumb="@drawable/text_select_handle_middle" />
 
-        <com.marolix.videotrimmer.view.TimeLineView
-            android:id="@+id/timeLineView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/timeVideoView" />
+            <com.marolix.videotrimmer.view.ProgressBarView
+                android:id="@+id/timeVideoView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/handlerTop" />
 
-        <com.marolix.videotrimmer.view.RangeSeekBarView
-            android:id="@+id/timeLineBar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            <com.marolix.videotrimmer.view.TimeLineView
+                android:id="@+id/timeLineView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/timeVideoView" />
 
-        <View
-            android:id="@+id/lineTop"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_below="@+id/timeLineBar"
-            android:background="@color/line_button" />
+            <com.marolix.videotrimmer.view.RangeSeekBarView
+                android:id="@+id/timeLineBar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignTop="@+id/timeLineView"/>
+
+            <View
+                android:id="@+id/lineTop"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_below="@+id/timeLineBar"
+                android:background="@color/line_button" />
+        </RelativeLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -125,8 +134,8 @@
             <View
                 android:layout_width="1dp"
                 android:layout_height="match_parent"
-                android:layout_marginBottom="5dp"
                 android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
                 android:background="@color/line_button" />
 
             <Button
